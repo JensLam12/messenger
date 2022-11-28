@@ -6,7 +6,7 @@ import 'package:chat_app/screens/users_screen.dart';
 import 'package:flutter/cupertino.dart';
 
 final Map<String, Widget Function(BuildContext)> appRoutes = {
-  'users'   : ( _ ) => const UsersScreen(),
+  'user'   : ( _ ) => const UsersScreen(),
   'chat'    : ( _ ) => const ChatScreen(),
   'login'   : ( _ ) => const LoginScreen(),
   'register': ( _ ) => const RegisterScreen(),
