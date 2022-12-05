@@ -1,5 +1,8 @@
+import 'package:chat_app/helpers/show_alert.dart';
+import 'package:chat_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/widgets/widgets.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -40,13 +43,10 @@ class __FormState extends State<_Form> {
   final emailCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
 
-  onPressedButton() {
-    print(emailCtrl.text);
-    print(passwordCtrl.text);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
       margin: const EdgeInsets.only( top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -64,7 +64,20 @@ class __FormState extends State<_Form> {
             textController: passwordCtrl,
             isPassword: true,
           ),
-          BlueButton(text: 'Ingresar', onPressed: onPressedButton)
+
+          BlueButton(
+            text: 'Ingresar', 
+            onPressed:  ( authService.authentic)  ? null : () async {
+              FocusScope.of(context).unfocus();
+              final loginOk = await authService.login( emailCtrl.text.trim(), passwordCtrl.text.trim() );
+              if(loginOk) {
+                Navigator.pushReplacementNamed(context, 'users');
+              } else {
+                showAlert( context, 'Login incorrecto', 'Revisa tus credenciales');
+              }
+            }
+          )
+
         ],
       ),
     );

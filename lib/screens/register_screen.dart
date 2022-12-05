@@ -1,5 +1,9 @@
+import 'package:chat_app/helpers/show_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/widgets/widgets.dart';
+import 'package:provider/provider.dart';
+
+import '../services/auth_service.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -41,13 +45,10 @@ class __FormState extends State<_Form> {
   final passwordCtrl = TextEditingController();
   final nameCtrl = TextEditingController();
 
-  onPressedButton() {
-    print(emailCtrl.text);
-    print(passwordCtrl.text);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    
     return Container(
       margin: const EdgeInsets.only( top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -71,7 +72,19 @@ class __FormState extends State<_Form> {
             textController: passwordCtrl,
             isPassword: true,
           ),
-          BlueButton(text: 'Ingresar', onPressed: onPressedButton)
+          BlueButton(
+            text: 'Crear cuenta', 
+            onPressed: ( authService.authentic)  ? null : () async {
+              FocusScope.of(context).unfocus();
+              final response = await authService.registerUser( nameCtrl.text.trim(), emailCtrl.text.trim(), passwordCtrl.text.trim() );
+              if(response == true) {
+                //TODO conect socket server
+                Navigator.pushReplacementNamed(context, 'users');
+              } else {
+                showAlert(context, 'Error en registro', response);
+              }
+            } 
+          )
         ],
       ),
     );
