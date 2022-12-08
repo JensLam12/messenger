@@ -12,8 +12,7 @@ class AuthService with ChangeNotifier{
   bool _authentic = false;
   bool get authentic => _authentic;
   // Create storage
-  final _storage = FlutterSecureStorage();
-
+  static FlutterSecureStorage _storage = FlutterSecureStorage();
 
   set authentic(bool value) {
     _authentic = value;
@@ -21,13 +20,11 @@ class AuthService with ChangeNotifier{
   }
 
   static Future<String?> getToken() async{
-    final _storage = FlutterSecureStorage();
     final token = await _storage.read(key: 'token');
     return token;
   }
 
   static Future deleteToken() async{
-    final _storage = FlutterSecureStorage();
     await _storage.delete(key: 'token');
   }
 
@@ -116,7 +113,7 @@ class AuthService with ChangeNotifier{
   }
 
   Future _saveToken(String token ) async {
-    return await _storage.write(key: 'token', value: token, aOptions: _getAndroidOptions() );
+    return await _storage.write(key: 'token', value: token );
   }
 
   Future logout() async {

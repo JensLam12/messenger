@@ -4,6 +4,7 @@ import 'package:chat_app/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
+import '../services/socket_service.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -48,6 +49,7 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     
     return Container(
       margin: const EdgeInsets.only( top: 40),
@@ -78,7 +80,7 @@ class __FormState extends State<_Form> {
               FocusScope.of(context).unfocus();
               final response = await authService.registerUser( nameCtrl.text.trim(), emailCtrl.text.trim(), passwordCtrl.text.trim() );
               if(response == true) {
-                //TODO conect socket server
+                socketService.connect();
                 Navigator.pushReplacementNamed(context, 'users');
               } else {
                 showAlert(context, 'Error en registro', response);
