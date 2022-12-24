@@ -20,7 +20,9 @@ class AuthService with ChangeNotifier{
   }
 
   static Future<String?> getToken() async{
-    final token = await _storage.read(key: 'token');
+    final token = await _storage.read(key: 'token', aOptions: const AndroidOptions(
+      encryptedSharedPreferences: true,
+    ));
     return token;
   }
 
@@ -90,30 +92,35 @@ class AuthService with ChangeNotifier{
   }
 
   Future<bool> isLoggerIn() async {
-    final token = await _storage.read(key: 'token');
-    final url = Uri.https( Environment.apiUrl, '/api/login/renew');
+    try {
+      final token = await _storage.read(key: 'token', aOptions: _getAndroidOptions());
+      final url = Uri.https( Environment.apiUrl, '/api/login/renew');
 
-    final resp = await http.get( url,
-      headers: { 
-        'Content-Type': 'application/json',
-        'x-token': token != null ? token.toString() : '' 
-      } 
-    );
+      final resp = await http.post( url,
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-token': token != null ? token.toString() : '' 
+        } 
+      );
 
-    if( resp.statusCode == 200) {
-      final loginResponse = loginResponseFromJson(resp.body);
-      user = loginResponse.userDb;
-      await _saveToken(loginResponse.token);
-      return true;
-    }
-    else {
-      logout();
+      if( resp.statusCode == 200) {
+        final loginResponse = loginResponseFromJson(resp.body);
+        user = loginResponse.userDb;
+        await _saveToken(loginResponse.token);
+        return true;
+      }
+      else {
+        logout();
+        return false;
+      }
+    } catch(exception) {
       return false;
     }
+    
   }
 
   Future _saveToken(String token ) async {
-    return await _storage.write(key: 'token', value: token );
+    return await _storage.write(key: 'token', value: token, aOptions: _getAndroidOptions() );
   }
 
   Future logout() async {
